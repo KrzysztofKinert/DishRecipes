@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [getenv("WEBSITE_HOSTNAME", "localhost")]
 # Application definition
 
 INSTALLED_APPS = [
+    "accounts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -102,6 +103,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Account settings
+
+AUTH_USER_MODEL = "accounts.CustomUser"
+LOGIN_REDIRECT_URL = "/"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -118,7 +123,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/" 
+STATIC_URL = "static/"
 STATICFILES_DIRS = [path.join(BASE_DIR, "static/")]
 STATIC_ROOT = path.join(BASE_DIR, "staticfiles")
 
