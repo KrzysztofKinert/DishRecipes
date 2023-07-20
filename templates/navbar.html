@@ -1,6 +1,22 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a class="navbar-brand" href="">DishRecipes</a>
+        <ul class="navbar-nav mr-auto">
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+                <li class="navbar-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            {% else %}
+                <li class="navbar-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="nav-link" href="{% url 'signup' %}">Sign up</a>
+                </li>
+            {% endif %}
+        </ul>
     </nav>
     {% include "messages.html" %}
 </header>

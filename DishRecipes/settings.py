@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Account settings
 
 AUTH_USER_MODEL = "accounts.CustomUser"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/accounts/login"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

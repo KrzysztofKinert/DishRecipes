@@ -3,7 +3,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 
 
-class ModelsTests(TestCase):
+class CustomUserTests(TestCase):
     def test_create_user(self):
         User = get_user_model()
         user = User.objects.create_user(username="test", email="test@test.com", password="1234")
@@ -41,7 +41,7 @@ class ModelsTests(TestCase):
 
     def test_create_superuser(self):
         User = get_user_model()
-        admin_user = User.objects.create_superuser(username="superuser", email="super@user.com", password="foo")
+        admin_user = User.objects.create_superuser(username="superuser", email="super@user.com", password="1234")
         self.assertIsInstance(admin_user, get_user_model())
         self.assertEqual(admin_user.email, "super@user.com")
         self.assertTrue(admin_user.is_active)
@@ -50,5 +50,11 @@ class ModelsTests(TestCase):
 
         with self.assertRaises(ValueError):
             User.objects.create_superuser(
-                username="superuser", email="super@user.com", password="foo", is_superuser=False
+                username="superuser", email="super@user.com", password="1234", is_superuser=False
             )
+
+    def test_user_object_name_is_username(self):
+        User = get_user_model()
+        user = User.objects.create_superuser(username="username", email="test@test.com", password="1234")
+        expected_object_name = f"{user.username}"
+        self.assertEqual(str(user), expected_object_name)
