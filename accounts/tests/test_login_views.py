@@ -41,3 +41,13 @@ class LoginLogoutViewsTests(TestCase):
         self.assertTrue(response.context["user"].is_authenticated)
         response = self.client.post("/accounts/logout/", follow=True)
         self.assertFalse(response.context["user"].is_authenticated)
+
+    def test_login_next_not_authenticated(self):
+        response = self.client.get("/accounts/login/?next=/accounts/password_change/")
+        self.assertContains(response, "Please login to see this page.", status_code=HTTPStatus.OK)
+
+    def test_login_next_authenticated(self):
+        get_user_model().objects.create_user(username="Test", email="Test@test.com", password="Test12345")
+        self.client.login(username="Test", password="Test12345")
+        response = self.client.get("/accounts/login/?next=/accounts/password_change/")
+        self.assertContains(response, "Your account doesn't have access to this page.", status_code=HTTPStatus.OK)

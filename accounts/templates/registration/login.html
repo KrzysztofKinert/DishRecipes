@@ -6,11 +6,22 @@
     Log in
 {% endblock title %}
 
+
 {% block stylesheets %}
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
 {% endblock stylesheets %}
 
 {% block content %}
+    {% if next %}
+        <div class="container card py-5 px-5 mt-5 text-center">
+            {% if user.is_authenticated %}
+                <h5>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</h5>
+            {% else %}
+                <h5>Please login to see this page.</h5>
+            {% endif %}
+        </div>
+    {% endif %}
     <div class="container card py-5 px-5 mt-5">
         <h1>Log in</h1>
         <form class="form-signin" method="post">
