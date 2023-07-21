@@ -108,6 +108,15 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "accounts.CustomUser"
 LOGIN_REDIRECT_URL = "/accounts/login"
 
+# Email settings
+EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = getenv("EMAIL_HOST")
+EMAIL_PORT = int(getenv("EMAIL_PORT"))
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = False if getenv("EMAIL_USE_TLS").lower() == "false" else True
+EMAIL_USE_SSL = False if getenv("EMAIL_USE_SSL").lower() == "false" else True
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
