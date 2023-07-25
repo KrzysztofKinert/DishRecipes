@@ -1,0 +1,13 @@
+{% extends 'base_layout.html' %}
+
+{% block title %}
+    {{ user_data.username }}
+{% endblock title %}
+
+{% block content %}
+    <div class="container card py-3 px-3 mt-5">
+        <h1 class="px-5 py-5">{{ user_data.username }}</h1>
+        <p>Last activity: {{ user_data.last_login|date }}</p>
+        <p>Date joined: {{ user_data.date_joined|date }}</p>
+    </div>
+{% endblock %}

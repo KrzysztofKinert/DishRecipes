@@ -1,0 +1,4 @@
+<div>
+    <h5><a href="{% url 'user-detail' user_data.username %}">{{ user_data.username }}</a></h5>
+    <p>Date joined: {{ user_data.date_joined|date }}</p>
+</div>
