@@ -22,7 +22,7 @@ class CreateUser(CreateView):
     model = get_user_model()
     form_class = CustomUserCreationForm
     template_name = "registration/signup.html"
-    success_url = reverse_lazy("login")
+    success_url = reverse_lazy("users")
 
     def form_valid(self, form):
         user = form.save()

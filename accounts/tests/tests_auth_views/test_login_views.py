@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-
+from django.conf import settings
 
 class LoginLogoutViewsTests(TestCase):
     def setUp(self):
@@ -14,8 +14,8 @@ class LoginLogoutViewsTests(TestCase):
         self.assertContains(response, "<h1>Log in</h1>", html=True)
 
     def test_post_login_valid_data(self):
-        response = self.client.post("/accounts/login/", data={"username": "test", "password": "1234"})
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        response = self.client.post("/accounts/login/", data={"username": "test", "password": "1234"}, follow=True)
+        self.assertRedirects(response, settings.LOGIN_REDIRECT_URL, status_code=HTTPStatus.FOUND, target_status_code=HTTPStatus.OK)
 
     def test_post_login_invalid_data(self):
         response = self.client.post("/accounts/login/", data={"username": "test2", "password": "4321"})

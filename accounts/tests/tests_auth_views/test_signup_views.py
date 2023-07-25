@@ -79,4 +79,4 @@ class SignupViewTests(TestCase):
             data={"username": "Test", "email": "test@test.com", "password1": "Test12345", "password2": "Test12345"},
             follow=True,
         )
-        self.assertRedirects(response, "/accounts/login/", status_code=HTTPStatus.FOUND)
+        self.assertRedirects(response, "/accounts/users", status_code=HTTPStatus.FOUND)

@@ -106,7 +106,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Account settings
 
 AUTH_USER_MODEL = "accounts.CustomUser"
-LOGIN_REDIRECT_URL = "/accounts/login"
+LOGIN_REDIRECT_URL = "/accounts/users"
 
 # Email settings
 EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
