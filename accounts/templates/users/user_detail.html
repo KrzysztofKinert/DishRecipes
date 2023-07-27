@@ -6,8 +6,20 @@
 
 {% block content %}
     <div class="container card py-3 px-3 mt-5">
-        <h1 class="px-5 py-5">{{ user_data.username }}</h1>
-        <p>Last activity: {{ user_data.last_login|date }}</p>
-        <p>Date joined: {{ user_data.date_joined|date }}</p>
+        <div class="media" style="height:10rem">
+            <img class="img-fluid" style="height:100%" src="{{ user_data.profile_image.url }}" alt="{{ user_data.username }}'s profile picture">
+            <div class="media-body">
+                <h1 class="px-5">{{ user_data.username }}</h1>
+                <div class="px-5">
+                    <hr>
+                    <p>Joined: {{ user_data.date_joined|date }}</p>
+                    <p>Last activity: {{ user_data.last_login|date }}</p>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div>
+            {% lorem 1 p random %}
+        </div>
     </div>
 {% endblock %}

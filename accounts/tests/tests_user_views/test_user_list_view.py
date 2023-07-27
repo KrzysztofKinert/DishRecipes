@@ -104,5 +104,5 @@ class UserListViewTests(TestCase):
         response = self.client.get("/accounts/users", data={"paginate_by": "25"})
         for i in range(self.num_of_users):
             user = get_user_model().objects.get(pk=i+1)
-            self.assertContains(response, f'<h5><a href="/accounts/users/{user.get_username()}">{user.get_username()}</a></h5>', html=True)
-            self.assertContains(response, f"<p>Date joined: {user.date_joined.strftime('%B %d, %Y')}</p>", html=True)
+            self.assertContains(response, f'<a href="/accounts/users/{user.get_username()}">{user.get_username()}</a>', html=True)
+            self.assertContains(response, f"<p>Joined: {user.date_joined.strftime('%B %d, %Y')}</p>", html=True)
