@@ -87,3 +87,8 @@ class CustomUserCreationFormTests(TestCase):
         form = CustomUserCreationForm(request.POST)
         with self.assertRaises(ValueError):
             form.save()
+
+    def test_no_profile_image_field_in_form(self):
+        form = CustomUserCreationForm()
+        self.assertNotIn("profile_image", form.fields)
+

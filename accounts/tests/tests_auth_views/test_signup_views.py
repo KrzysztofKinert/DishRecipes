@@ -6,6 +6,7 @@ from django.test import TestCase
 class SignupViewTests(TestCase):
     def test_get_signup(self):
         response = self.client.get("/accounts/signup")
+        self.assertTemplateUsed(response, "registration/signup.html")
         self.assertContains(response, "<h1>Sign up</h1>", html=True, status_code=HTTPStatus.OK)
 
     def test_post_signup_valid_data(self):
