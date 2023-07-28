@@ -1,11 +1,10 @@
-{% extends 'base_layout.html' %}
-{% load crispy_forms_tags %}  
+{% extends "base_layout.html" %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
     Log in
 {% endblock title %}
-
 
 {% block stylesheets %}
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
@@ -15,8 +14,10 @@
     {% if next %}
         <div class="container card py-5 px-5 mt-5 text-center">
             {% if user.is_authenticated %}
-                <h5>Your account doesn't have access to this page. To proceed,
-                please login with an account that has access.</h5>
+                <h5>
+                    Your account doesn't have access to this page. To proceed,
+                    please login with an account that has access.
+                </h5>
             {% else %}
                 <h5>Please login to see this page.</h5>
             {% endif %}
@@ -29,6 +30,8 @@
             {{ form|crispy }}
             <button type="submit" name="login_btn" id="login_btn" class="btn btn-primary">Log in</button>
         </form>
-        <p class="pt-3"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+        <p class="pt-3">
+            <a href="{% url 'password_reset' %}">Forgot your password?</a>
+        </p>
     </div>
 {% endblock content %}

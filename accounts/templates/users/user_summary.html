@@ -1,8 +1,14 @@
 <div class="flex-container">
     <div class="media px-3 pt-3" style="height:6rem">
-        <img class="img-fluid" style="height:100%" src="{{ user_data.profile_image.url }}" alt="{{ user_data.username }}'s profile picture">
+        <img class="img-fluid"
+             height="80"
+             width="80"
+             src="{{ user_data.profile_image.url }}"
+             alt="{{ user_data.username }}'s profile picture">
         <div class="media-body w-100" style="height:100% width:100%">
-            <h4 class="px-5"><a href="{% url 'user-detail' user_data.username %}">{{ user_data.username }}</a></h4>
+            <h4 class="px-5">
+                <a href="{% url 'user-detail' user_data.username %}">{{ user_data.username }}</a>
+            </h4>
             <div class="pl-5">
                 <p>Joined: {{ user_data.date_joined|date }}</p>
             </div>
@@ -11,7 +17,5 @@
     <div class="px-3">
         <hr>
     </div>
-    <div class="px-3 pb-3">
-        {% lorem 1 p random %}
-    </div>
+    <div class="px-3 pb-3">{% lorem 1 p random %}</div>
 </div>

@@ -1,4 +1,4 @@
-{% extends 'base_layout.html' %}
+{% extends "base_layout.html" %}
 
 {% block title %}
     Users
@@ -8,24 +8,31 @@
     <div class="container card py-5 px-5 mt-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="px-1">DishRecipes users</h1>
-            <form method="get" name="PaginateBy" id="PaginateBy" class="form-inline mx-1">
+            <form method="get"
+                  name="PaginateBy"
+                  id="PaginateBy"
+                  class="form-inline mx-1">
                 Paginate by:
-                <select name="paginate_by" id="paginate_by" class="form-control ml-2" onchange="this.form.submit()">
-                    <option {% if request.GET.paginate_by == "5"  %} selected {% endif %} value="5">5</option>
-                    <option {% if request.GET.paginate_by == "10" or request.GET.paginate_by is None %} selected {% endif %} value="10">10</option>
-                    <option {% if request.GET.paginate_by == "25"  %} selected {% endif %} value="25">25</option>
-                    <option {% if request.GET.paginate_by == "50"  %} selected {% endif %} value="50">50</option>
+                <select name="paginate_by"
+                        id="paginate_by"
+                        class="form-control ml-2"
+                        onchange="this.form.submit()">
+                    <option {% if request.GET.paginate_by == "5" %}selected{% endif %} value="5">5</option>
+                    <option {% if request.GET.paginate_by == "10" or request.GET.paginate_by is None %}selected{% endif %}
+                            value="10">10</option>
+                    <option {% if request.GET.paginate_by == "25" %}selected{% endif %}
+                            value="25">25</option>
+                    <option {% if request.GET.paginate_by == "50" %}selected{% endif %}
+                            value="50">50</option>
                 </select>
             </form>
         </div>
-        {% include "pagination_buttons.html"%}
+        {% include "pagination_buttons.html" %}
         <ul class="list-group pr-1 pl-1">
             {% for user_data in users %}
-                <li class="list-group-item my-2">
-                    {% include "users/user_summary.html" %}
-                </li>
+                <li class="list-group-item my-2">{% include "users/user_summary.html" %}</li>
             {% endfor %}
         </ul>
-        {% include "pagination_buttons.html"%}
+        {% include "pagination_buttons.html" %}
     </div>
-{% endblock %}
+{% endblock content %}

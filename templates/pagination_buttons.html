@@ -1,16 +1,26 @@
 <div>
-    <form method="get" class="pagination d-flex justify-content-center align-items-center">
-        <input type="hidden" name="paginate_by" value="{{ request.GET.paginate_by }}">
+    <form method="get"
+          class="pagination d-flex justify-content-center align-items-center">
+        <input type="hidden"
+               name="paginate_by"
+               value="{{ request.GET.paginate_by }}">
         {% if page_obj.has_previous %}
             <button class="page-link" type="submit" name="page" value="1">&laquo; first</button>
-            <button class="page-link" type="submit" name="page" value="{{ page_obj.previous_page_number }}">previous</button>
+            <button class="page-link"
+                    type="submit"
+                    name="page"
+                    value="{{ page_obj.previous_page_number }}">previous</button>
         {% endif %}
-        <span class="current px-2">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </span>
+        <span class="current px-2">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-            <button class="page-link" type="submit" name="page" value="{{ page_obj.next_page_number }}">next</button>
-            <button class="page-link" type="submit" name="page" value="{{ page_obj.paginator.num_pages }}">last &raquo;</button>
+            <button class="page-link"
+                    type="submit"
+                    name="page"
+                    value="{{ page_obj.next_page_number }}">next</button>
+            <button class="page-link"
+                    type="submit"
+                    name="page"
+                    value="{{ page_obj.paginator.num_pages }}">last &raquo;</button>
         {% endif %}
     </form>
 </div>
