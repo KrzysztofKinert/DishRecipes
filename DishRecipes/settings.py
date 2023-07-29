@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-from os import getenv, path
+from os import path
 from django.contrib.messages import constants as messages
+
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,16 +24,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = getenv("SECRET_KEY")
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False if getenv("DEBUG", "True").lower() == "false" else True
+DEBUG = config("DEBUG", cast=bool, default=True)
 
-ALLOWED_HOSTS = [getenv("WEBSITE_HOSTNAME", "localhost")]
+ALLOWED_HOSTS = [config("WEBSITE_HOSTNAME", default="localhost")]
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    "custom",
     "accounts",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -58,7 +62,7 @@ ROOT_URLCONF = "DishRecipes.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -109,13 +113,13 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 LOGIN_REDIRECT_URL = "/accounts/users"
 
 # Email settings
-EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
-EMAIL_HOST = getenv("EMAIL_HOST")
-EMAIL_PORT = int(getenv("EMAIL_PORT"))
-EMAIL_HOST_USER = getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD")
-EMAIL_USE_TLS = False if getenv("EMAIL_USE_TLS").lower() == "false" else True
-EMAIL_USE_SSL = False if getenv("EMAIL_USE_SSL").lower() == "false" else True
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = config("EMAIL_HOST")
+EMAIL_PORT = config("EMAIL_PORT", cast=int)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", cast=bool)
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
