@@ -1,0 +1,15 @@
+<div class="container">
+    <div class="my-1">
+        {% if not widget.required %}
+            <input type="checkbox"
+                   name="{{ widget.checkbox_name }}"
+                   id="{{ widget.checkbox_id }}"
+                   {% if widget.attrs.disabled %}disabled{% endif %}>
+            <label for="{{ widget.checkbox_id }}">Set image to default</label>
+        {% endif %}
+    </div>
+    {{ widget.input_text }}:
+    <input type="{{ widget.type }}"
+           name="{{ widget.name }}"
+           {% include "django/forms/widgets/attrs.html" %}>
+</div>
