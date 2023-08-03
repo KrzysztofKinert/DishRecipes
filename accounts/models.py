@@ -1,7 +1,9 @@
+from typing import Any, Iterable, Optional
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import EmailValidator
+from django.conf import settings
 
 
 class CustomUserManager(UserManager):
@@ -40,7 +42,7 @@ class CustomUser(AbstractUser):
         },
     )
     profile_image = models.ImageField(
-        _("profile picture"),
+        _("profile image"),
         max_length=200,
         upload_to="images",
         blank=True,
@@ -53,3 +55,9 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def profile_image_url_or_default(self):
+        try:
+            return self.profile_image.url
+        except:
+            return settings.MEDIA_URL + "images/default.jpg"

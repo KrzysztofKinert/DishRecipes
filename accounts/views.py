@@ -1,17 +1,22 @@
 from typing import Any, Optional
+from django import http
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, get_user_model
 from django.db import models
+from django.forms.models import BaseModelForm
 from django.http import Http404, HttpRequest, HttpResponse, HttpResponseNotFound
+from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.shortcuts import HttpResponseRedirect, render
 from django.db.models.query import QuerySet
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 
 # Create your views here.
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, UserProfileImageForm
 
 
 def redirect_to_users(request):
@@ -69,3 +74,26 @@ class UserList(ListView):
         request.GET = request.GET.copy()
         request.GET["paginate_by"] = str(self.get_paginate_by(self.get_queryset()))
         return super().get(request, *args, **kwargs)
+
+class UserProfileImageUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = get_user_model()
+    form_class = UserProfileImageForm
+    template_name = "users/profile_image_form.html"
+    slug_field = "username"
+
+    def get_success_url(self):
+        success_url = reverse("user-detail", kwargs={"slug": self.object.username})
+        return success_url
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            messages.error(self.request, form.errors["profile_image"][0])
+            return self.form_invalid(form)
+
+    def test_func(self):
+        this_user = self.get_object()
+        return self.request.user.username == this_user.username

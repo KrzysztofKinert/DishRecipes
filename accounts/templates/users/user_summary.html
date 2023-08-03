@@ -3,14 +3,14 @@
         <img class="img-fluid"
              height="80"
              width="80"
-             src="{{ user_data.profile_image.url }}"
+             src="{{ user_data.profile_image_url_or_default }}"
              alt="{{ user_data.username }}'s profile picture">
         <div class="media-body w-100" style="height:100% width:100%">
             <h4 class="px-5">
                 <a href="{% url 'user-detail' user_data.username %}">{{ user_data.username }}</a>
             </h4>
             <div class="pl-5">
-                <p>Joined: {{ user_data.date_joined|date }}</p>
+                <p>Joined: {{ user_data.date_joined|date:"M d, Y" }}</p>
             </div>
         </div>
     </div>

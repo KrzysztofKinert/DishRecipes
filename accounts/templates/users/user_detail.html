@@ -11,14 +11,14 @@
                  style="height:100%"
                  height="200"
                  width="200"
-                 src="{{ user_data.profile_image.url }}"
+                 src="{{ user_data.profile_image_url_or_default }}"
                  alt="{{ user_data.username }}'s profile picture">
             <div class="media-body">
                 <h1 class="px-5">{{ user_data.username }}</h1>
                 <div class="px-5">
                     <hr>
-                    <p>Joined: {{ user_data.date_joined|date }}</p>
-                    <p>Last activity: {{ user_data.last_login|date }}</p>
+                    <p>Joined: {{ user_data.date_joined|date:"M d, Y" }}</p>
+                    <p>Last activity: {{ user_data.last_login|date:"M d, Y" }}</p>
                 </div>
             </div>
         </div>

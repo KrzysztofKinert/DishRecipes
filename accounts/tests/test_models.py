@@ -3,6 +3,8 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from os import path, remove
+from django.conf import settings
+
 
 class CustomUserTests(TestCase):
     def test_create_user(self):
@@ -56,15 +58,38 @@ class CustomUserTests(TestCase):
 
     def test_user_object_name_is_username(self):
         User = get_user_model()
-        user = User.objects.create_superuser(username="username", email="test@test.com", password="1234")
+        user = User.objects.create_user(username="username", email="test@test.com", password="1234")
         expected_object_name = f"{user.username}"
         self.assertEqual(str(user), expected_object_name)
 
     def test_default_profile_image(self):
         default_image_name = "default.jpg"
-        user = get_user_model().objects.create_superuser(username="username", email="test@test.com", password="1234")
+        user = get_user_model().objects.create_user(username="username", email="test@test.com", password="1234")
         self.assertEqual(user.profile_image.name, "images/" + default_image_name)
-        self.assertEqual(user.profile_image.url, "/media/images/" + default_image_name)
+        self.assertEqual(user.profile_image.url, settings.MEDIA_URL + "images/" + default_image_name)
+
+    def test_profile_image_url_or_default(self):
+        test_image_name = "test.gif"
+        default_image_name = "default.jpg"
+        user = get_user_model().objects.create_user(username="username", email="test@test.com", password="1234")
+        self.assertEqual(user.profile_image_url_or_default(), settings.MEDIA_URL + "images/" + default_image_name)
+        user.profile_image = SimpleUploadedFile(
+            name=test_image_name,
+            content=( 
+                b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+                b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+                b"\x02\x4c\x01\x00\x3b"
+            ),
+            content_type="image/gif",
+        )
+        user.save()
+        self.assertEqual(user.profile_image_url_or_default(), settings.MEDIA_URL + "images/" + test_image_name)
+        user.profile_image = None
+        user.save()
+        with self.assertRaises(ValueError):
+            user.profile_image.url
+        self.assertEqual(user.profile_image_url_or_default(), settings.MEDIA_URL + "images/" + default_image_name)
+        remove("uploads/images/" + test_image_name)
 
     def test_profile_image_upload(self):
         test_image_name = "test.gif"
@@ -73,7 +98,7 @@ class CustomUserTests(TestCase):
             b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
             b"\x02\x4c\x01\x00\x3b"
         )
-        user = get_user_model().objects.create_superuser(username="username", email="test@test.com", password="1234")
+        user = get_user_model().objects.create_user(username="username", email="test@test.com", password="1234")
         user.profile_image = SimpleUploadedFile(
             name=test_image_name, content=test_image_content, content_type="image/gif"
         )

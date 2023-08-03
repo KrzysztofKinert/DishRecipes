@@ -1,0 +1,30 @@
+{% extends "base_layout.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+    Change profile image
+{% endblock title %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="container card py-5 px-5 mt-5">
+        <h1>Change profile image</h1>
+        <p>Please choose a new profile image file or check the checkbox to set profile image to default.</p>
+        Current image:
+        <img class="img-fluid my-1"
+             src="{{ object.profile_image_url_or_default }}"
+             alt="Current image"
+             height="400"
+             width="800">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" class="btn btn-success" value="Change">
+            <a href="{% url 'user-detail' object.username %}" class="btn btn-danger">Go back</a>
+        </form>
+    </div>
+{% endblock content %}
