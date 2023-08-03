@@ -31,7 +31,6 @@ DEBUG = config("DEBUG", cast=bool, default=True)
 
 ALLOWED_HOSTS = [config("WEBSITE_HOSTNAME", default="localhost")]
 
-
 # Application definition
 
 INSTALLED_APPS = [

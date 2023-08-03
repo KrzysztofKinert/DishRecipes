@@ -1,8 +1,9 @@
-# Local launch settings
+# Local settings
 .vscode
 staticfiles
 uploads
 .djlintrc
+.coveragerc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
