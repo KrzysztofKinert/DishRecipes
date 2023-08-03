@@ -51,9 +51,21 @@ class CustomUserTests(TestCase):
         self.assertTrue(admin_user.is_staff)
         self.assertTrue(admin_user.is_superuser)
 
+        with self.assertRaises(TypeError):
+            User.objects.create_superuser(username="test")
+        with self.assertRaises(TypeError):
+            User.objects.create_superuser(email="test@test.com")
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(username="test", email="")
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(username="", email="test@test.com")
         with self.assertRaises(ValueError):
             User.objects.create_superuser(
                 username="superuser", email="super@user.com", password="1234", is_superuser=False
+            )
+        with self.assertRaises(ValueError):
+            User.objects.create_superuser(
+                username="superuser", email="super@user.com", password="1234", is_staff=False
             )
 
     def test_user_object_name_is_username(self):
