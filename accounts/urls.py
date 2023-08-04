@@ -5,11 +5,11 @@ from . import views
 urlpatterns = [
     path("", views.redirect_to_users),
     path("", include("django.contrib.auth.urls")),
-    path("signup", views.CreateUser.as_view(), name="signup"),
-    path("users", views.UserList.as_view(), name="users"),
-    path("users/<str:slug>", views.UserDetail.as_view(), name="user-detail"),
+    path("signup/", views.CreateUser.as_view(), name="signup"),
+    path("users/", views.UserList.as_view(), name="users"),
+    path("users/<str:slug>/", views.UserDetail.as_view(), name="user-detail"),
     path("users/<str:slug>/deactivate/", views.UserDeactivate.as_view(), name="user-deactivate"),
-    path("users/<str:slug>/profile_image_update", views.UserProfileImageUpdate.as_view(), name="user-profile-image-update")
+    path("users/<str:slug>/profile_image_update/", views.UserProfileImageUpdate.as_view(), name="user-profile-image-update")
 ]
 
 # django.contrib.auth.urls

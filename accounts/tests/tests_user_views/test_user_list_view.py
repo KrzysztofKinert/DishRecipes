@@ -19,44 +19,44 @@ class UserListViewTests(TestCase):
         response = self.client.get("/accounts/")
         self.assertRedirects(
             response,
-            "/accounts/users",
+            "/accounts/users/",
             status_code=HTTPStatus.FOUND,
             target_status_code=HTTPStatus.OK,
         )
 
     def test_get_user_list(self):
-        response = self.client.get("/accounts/users")
+        response = self.client.get("/accounts/users/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, self.user_list_template)
         self.assertContains(response, "DishRecipes users", html=True)
 
     def test_user_list_shows_all_users(self):
-        response = self.client.get("/accounts/users")
+        response = self.client.get("/accounts/users/")
         self.assertEqual(response.context_data["paginator"].count, self.num_of_users)
 
     def test_user_list_default_pagination(self):
-        response = self.client.get("/accounts/users")
+        response = self.client.get("/accounts/users/")
         paginator = response.context_data["paginator"]
         self.assertEqual(paginator.count, self.num_of_users)
         self.assertEqual(paginator.num_pages, math.ceil(self.num_of_users / self.paginate_by))
 
     def test_user_list_set_paginate_by(self):
-        response = self.client.get("/accounts/users", data={"paginate_by": "5"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "5"})
         paginator = response.context_data["paginator"]
         self.assertEqual(paginator.per_page, 5)
         self.assertEqual(paginator.num_pages, math.ceil(self.num_of_users / 5))
         self.assertContains(response, '<option selected value="5">5</option>', html=True)
-        response = self.client.get("/accounts/users", data={"paginate_by": "10"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "10"})
         paginator = response.context_data["paginator"]
         self.assertEqual(paginator.per_page, 10)
         self.assertEqual(paginator.num_pages, math.ceil(self.num_of_users / 10))
         self.assertContains(response, '<option selected value="10">10</option>', html=True)
-        response = self.client.get("/accounts/users", data={"paginate_by": "25"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "25"})
         paginator = response.context_data["paginator"]
         self.assertEqual(paginator.per_page, 25)
         self.assertEqual(paginator.num_pages, math.ceil(self.num_of_users / 25))
         self.assertContains(response, '<option selected value="25">25</option>', html=True)
-        response = self.client.get("/accounts/users", data={"paginate_by": "50"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "50"})
         paginator = response.context_data["paginator"]
         self.assertEqual(paginator.per_page, 50)
         self.assertEqual(paginator.num_pages, math.ceil(self.num_of_users / 50))
@@ -76,7 +76,7 @@ class UserListViewTests(TestCase):
         else:
             prev_buttons_count = 2
             next_buttons_count = 2
-        response = self.client.get("/accounts/users", data={"page": f"{page}", "paginate_by": f"{paginate_by}"})
+        response = self.client.get("/accounts/users/", data={"page": f"{page}", "paginate_by": f"{paginate_by}"})
         self.assertContains(response, f"Page {page} of {max_page}", html=True)
         self.assertContains(response, f'<button class="page-link" type="submit" name="page" value="1">&laquo; first</button>', prev_buttons_count, html=True)
         self.assertContains(response, f'<button class="page-link" type="submit" name="page" value="{page-1}">previous</button>', prev_buttons_count, html=True)
@@ -91,18 +91,18 @@ class UserListViewTests(TestCase):
                 self.user_list_set_page_and_paginate_by(page, paginate_by)
 
     def test_user_list_set_only_paginate_by_sets_page_to_1(self):
-        response = self.client.get("/accounts/users", data={"page":"2", "paginate_by": "5"})
+        response = self.client.get("/accounts/users/", data={"page":"2", "paginate_by": "5"})
         self.assertContains(response, f"Page 2 of {math.ceil(self.num_of_users / 5)}", html=True)
-        response = self.client.get("/accounts/users", data={"paginate_by": "10"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "10"})
         self.assertContains(response, f"Page 1 of {math.ceil(self.num_of_users / 10)}", html=True)
-        response = self.client.get("/accounts/users", data={"page":"2", "paginate_by": "10"})
+        response = self.client.get("/accounts/users/", data={"page":"2", "paginate_by": "10"})
         self.assertContains(response, f"Page 2 of {math.ceil(self.num_of_users / 10)}", html=True)
-        response = self.client.get("/accounts/users", data={"paginate_by": "5"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "5"})
         self.assertContains(response, f"Page 1 of {math.ceil(self.num_of_users / 5)}", html=True)
 
     def test_user_list_shows_user_summary_list(self):
-        response = self.client.get("/accounts/users", data={"paginate_by": "25"})
+        response = self.client.get("/accounts/users/", data={"paginate_by": "25"})
         for i in range(self.num_of_users):
             user = get_user_model().objects.get(pk=i+1)
-            self.assertContains(response, f'<a href="/accounts/users/{user.get_username()}">{user.get_username()}</a>', html=True)
+            self.assertContains(response, f'<a href="/accounts/users/{user.get_username()}/">{user.get_username()}</a>', html=True)
             self.assertContains(response, f"<p>Joined: {user.date_joined.strftime('%b %d, %Y')}</p>", html=True)

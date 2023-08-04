@@ -10,10 +10,10 @@ from django.urls import reverse_lazy
 class UserProfileImageUpdateViewTests(TestCase):
     def test_get_user_profile_image_update_not_authenticated_redirects_to_login_with_next(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
-        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update")
+        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update/")
         self.assertRedirects(
             response,
-            f"/accounts/login/?next=/accounts/users/{user.username}/profile_image_update",
+            f"/accounts/login/?next=/accounts/users/{user.username}/profile_image_update/",
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
@@ -21,7 +21,7 @@ class UserProfileImageUpdateViewTests(TestCase):
     def test_get_user_profile_image_update_authenticated(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
-        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update")
+        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, "users/profile_image_form.html")
         self.assertContains(
@@ -33,10 +33,10 @@ class UserProfileImageUpdateViewTests(TestCase):
     def test_post_user_profile_image_no_image(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
-        response = self.client.post(f"/accounts/users/{user.username}/profile_image_update", data={}, follow=True)
+        response = self.client.post(f"/accounts/users/{user.username}/profile_image_update/", data={}, follow=True)
         self.assertRedirects(
             response,
-            f"/accounts/users/{user.username}",
+            f"/accounts/users/{user.username}/",
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
@@ -60,7 +60,7 @@ class UserProfileImageUpdateViewTests(TestCase):
         user = get_user_model().objects.all()[0]
         self.assertRedirects(
             response,
-            f"/accounts/users/{user.username}",
+            f"/accounts/users/{user.username}/",
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
@@ -75,7 +75,7 @@ class UserProfileImageUpdateViewTests(TestCase):
         response = self.client.post(url, data)
         self.assertRedirects(
             response,
-            f"/accounts/users/{user.username}",
+            f"/accounts/users/{user.username}/",
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
