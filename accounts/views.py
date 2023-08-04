@@ -1,22 +1,15 @@
-from typing import Any, Optional
-from django import http
-from django.conf import settings
+from typing import Any, Dict
 from django.contrib import messages
-from django.contrib.auth import login, get_user_model
-from django.db import models
-from django.forms.models import BaseModelForm
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseNotFound
+from django.contrib.auth import login, get_user_model, logout
+from django.http import Http404, HttpRequest, HttpResponse
 from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, UpdateView
-from django.shortcuts import HttpResponseRedirect, render
-from django.db.models.query import QuerySet
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView
+from django.shortcuts import HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
 
-# Create your views here.
-
-from .forms import CustomUserCreationForm, UserProfileImageForm
+from .forms import CustomUserCreationForm, UserProfileImageForm, UserDeactivateForm
 
 
 def redirect_to_users(request):
@@ -75,6 +68,7 @@ class UserList(ListView):
         request.GET["paginate_by"] = str(self.get_paginate_by(self.get_queryset()))
         return super().get(request, *args, **kwargs)
 
+
 class UserProfileImageUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = get_user_model()
     form_class = UserProfileImageForm
@@ -84,7 +78,7 @@ class UserProfileImageUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView
     def get_success_url(self):
         success_url = reverse("user-detail", kwargs={"slug": self.object.username})
         return success_url
-    
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.get_form()
@@ -93,6 +87,40 @@ class UserProfileImageUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView
         else:
             messages.error(self.request, form.errors["profile_image"][0])
             return self.form_invalid(form)
+
+    def test_func(self):
+        this_user = self.get_object()
+        return self.request.user.username == this_user.username
+
+
+class UserDeactivate(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, FormView):
+    model = get_user_model()
+    form_class = UserDeactivateForm
+    success_url = reverse_lazy("users")
+    template_name = "users/user_deactivate_form.html"
+    slug_field = "username"
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        form = self.get_form()
+        form.is_valid()
+        if form.get_user() != self.get_object():
+            form.invalidate_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form) -> HttpResponse:
+        user = form.get_user()
+        logout(self.request)
+        user.is_active = False
+        user.save()
+        messages.success(self.request, "Account successfully deactivated.")
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        self.object = self.get_object()
+        return super().get_context_data(**kwargs)
 
     def test_func(self):
         this_user = self.get_object()

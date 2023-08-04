@@ -5,6 +5,36 @@
 {% endblock title %}
 
 {% block content %}
+    {% if user.is_authenticated and user.username == user_data.username %}
+        <div class="container card py-3 px-3 mt-5 accordion"
+             id="accordionProfileSettings">
+            <div id="headingProfileSettings">
+                <button class="btn btn-block btn-outline-info text-left"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapseProfileSettings"
+                        aria-expanded="true"
+                        aria-controls="collapseProfileSettings">Open profile settings</button>
+            </div>
+            <div id="collapseProfileSettings"
+                 class="collapse"
+                 aria-labelledby="headingProfileSettings"
+                 data-parent="#accordionProfileSettings">
+                <div class="card-body">
+                    <div class="list-group" style="width:20rem">
+                        <a class="list-group-item list-group-item-action list-group-item-primary"
+                           href="{% url 'user-profile-image-update' user_data.username %}">Change profile image</a>
+                        <a class="list-group-item list-group-item-action list-group-item-primary"
+                           href="{% url 'password_change' %}">Change account password</a>
+                    </div>
+                    <div class="list-group pt-2" style="width:20rem">
+                        <a class="list-group-item list-group-item-action list-group-item-danger"
+                           href="{% url 'user-deactivate' user_data.username %}">Deactivate account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <div class="container card py-3 px-3 mt-5">
         <div class="media" style="height:10rem">
             <img class="img-fluid"
