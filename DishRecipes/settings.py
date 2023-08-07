@@ -36,6 +36,7 @@ ALLOWED_HOSTS = [config("WEBSITE_HOSTNAME", default="localhost")]
 INSTALLED_APPS = [
     "custom",
     "accounts",
+    "recipes",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
