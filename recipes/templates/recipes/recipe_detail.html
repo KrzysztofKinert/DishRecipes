@@ -1,0 +1,13 @@
+{% extends "base_layout.html" %}
+{% load static %}
+
+{% block title %}
+    {{ recipe.title }}
+{% endblock title %}
+
+{% block stylesheets %}
+{% endblock stylesheets %}
+
+{% block content %}
+    <p>{{ recipe.title }}</p>
+{% endblock content %}

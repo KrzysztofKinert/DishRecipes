@@ -2,7 +2,7 @@ from http import HTTPStatus
 from django.test import TestCase
 
 
-class SignupViewTests(TestCase):
+class IndexViewTests(TestCase):
     def test_get_index(self):
         response = self.client.get("/")
         self.assertTemplateUsed(response, "recipes/index.html")
