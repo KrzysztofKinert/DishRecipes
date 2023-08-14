@@ -45,9 +45,9 @@ class RecipeDetailTests(TestCase):
             preparation="test preparation",
             serving="test serving",
         )
-        response = self.client.get(f"/recipes/{recipe.id}/")
+        response = self.client.get(reverse("recipe-detail", kwargs={"slug": recipe.id}))
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
-        response = self.client.get(f"/recipes/{recipe.slug}/")
+        response = self.client.get(reverse("recipe-detail", kwargs={"slug": recipe.slug}))
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_recipe_detail_settings_only_visible_to_authenticated_author(self):

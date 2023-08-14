@@ -32,5 +32,5 @@ class IndexViewTests(TestCase):
         response = self.client.get(reverse("index"))
         newest_recipes = Recipe.objects.all().order_by("-created_date")[:3]
         for i in range(len(newest_recipes)):
-            self.assertContains(response, f'<a href="/recipes/{newest_recipes[i].slug}/">{newest_recipes[i].title}</a>', html=True)
+            self.assertContains(response, f'<a href={reverse("recipe-detail", kwargs={"slug": newest_recipes[i].slug})}>{newest_recipes[i].title}</a>', html=True)
             self.assertContains(response, f"<p>Written: {newest_recipes[i].created_date.strftime('%b %d, %Y')}</p>", html=True)
