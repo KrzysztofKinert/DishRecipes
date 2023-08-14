@@ -28,7 +28,7 @@ class UserListViewTests(TestCase):
         response = self.client.get("/accounts/users/")
         self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertTemplateUsed(response, self.user_list_template)
-        self.assertContains(response, "DishRecipes users", html=True)
+        self.assertContains(response, "Users", html=True)
 
     def test_user_list_shows_all_users(self):
         response = self.client.get("/accounts/users/")
