@@ -1,0 +1,22 @@
+{% load static %}
+<div class="flex-container">
+    <div class="media px-3 pt-3" style="height:6rem">
+        <img class="img-fluid"
+             height="80"
+             width="80"
+             src="{% get_media_prefix %}images/default.jpg"
+             alt="temp">
+        <div class="media-body w-100" style="height:100% width:100%">
+            <h4 class="px-5">
+                <a href="{% url 'recipe-detail' recipe.slug %}">{{ recipe.title }}</a>
+            </h4>
+            <div class="pl-5">
+                <p>Written: {{ recipe.created_date|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="px-3">
+        <hr>
+    </div>
+    <div class="px-3 pb-3">{{ recipe.excerpt }}</div>
+</div>

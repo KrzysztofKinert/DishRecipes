@@ -9,5 +9,56 @@
 {% endblock stylesheets %}
 
 {% block content %}
-    <p>{{ recipe.title }}</p>
+    {% if user.is_authenticated and user.username == recipe.author.username %}
+        <div class="container card py-3 px-3 mt-5 accordion"
+             id="accordionProfileSettings">
+            <div id="headingProfileSettings">
+                <button class="btn btn-block btn-outline-info text-left"
+                        type="button"
+                        data-toggle="collapse"
+                        data-target="#collapseProfileSettings"
+                        aria-expanded="true"
+                        aria-controls="collapseProfileSettings">Open recipe settings</button>
+            </div>
+            <div id="collapseProfileSettings"
+                 class="collapse"
+                 aria-labelledby="headingProfileSettings"
+                 data-parent="#accordionProfileSettings">
+                <div class="card-body">
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="container card py-3 px-3 mt-5">
+        <div class="media" style="height:10rem">
+            <img class="img-fluid"
+                 style="height:100%"
+                 height="200"
+                 width="200"
+                 src="{% get_media_prefix %}images/default.jpg"
+                 alt="temp">
+            <div class="media-body">
+                <h1 class="px-5">{{ recipe.title }}</h1>
+                <div class="px-5">
+                    <hr>
+                    <p>Written: {{ recipe.created_date|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div>
+            <h3 class="pb-3">Ingredients</h3>
+            <p>{{ recipe.ingredients }}</p>
+        </div>
+        <hr>
+        <div>
+            <h3 class="pb-3">Preparation</h3>
+            <p>{{ recipe.preparation }}</p>
+        </div>
+        <hr>
+        <div>
+            <h3 class="pb-3">Serving</h3>
+            <p>{{ recipe.serving }}</p>
+        </div>
+    </div>
 {% endblock content %}

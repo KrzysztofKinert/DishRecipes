@@ -1,13 +1,19 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="">DishRecipes</a>
+        <a class="navbar-brand" href="{% url 'index' %}">DishRecipes</a>
         <ul class="navbar-nav mr-auto">
+            <li class="navbar-item">
+                <a class="nav-link" href="{% url 'recipe-list' %}">Recipes</a>
+            </li>
             <li class="navbar-item">
                 <a class="nav-link" href="{% url 'users' %}">Users</a>
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
+                <li class="navbar-item">
+                    <a class="nav-link" href="{% url 'user-detail' user.username %}">Profile</a>
+                </li>
                 <li class="navbar-item">
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                 </li>

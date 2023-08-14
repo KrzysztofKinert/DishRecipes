@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
 
@@ -48,7 +49,7 @@ class RecipeTests(TestCase):
 
     def test_recipe_get_absolute_url(self):
         recipe = Recipe.objects.create(author=None, title="test recipe", excerpt="test")
-        self.assertEqual(recipe.get_absolute_url(), "/recipe/test-recipe/")
+        self.assertEqual(recipe.get_absolute_url(), reverse("recipe-detail", kwargs={"slug": recipe.slug}))
 
     def test_recipe_str(self):
         user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
