@@ -1,0 +1,25 @@
+{% extends "base_layout.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}
+    Create Recipe
+{% endblock title %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
+{% endblock stylesheets %}
+
+{% block content %}
+    <div class="container card py-5 px-5 mt-5">
+        <h1>Write your recipe</h1>
+        <form class="form-signin" method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit"
+                    name="create_btn"
+                    id="create_btn"
+                    class="btn btn-primary">Create</button>
+        </form>
+    </div>
+{% endblock content %}

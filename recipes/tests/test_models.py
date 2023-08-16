@@ -66,3 +66,12 @@ class RecipeTests(TestCase):
         recipe2 = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
         self.assertEqual(recipe.slug, "test-recipe")
         self.assertEqual(recipe2.slug, "test-recipe-1")
+
+    def test_changing_title_does_not_change_slug(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe")
+        self.assertEqual(recipe.slug, "test-recipe")
+        recipe.title="recipe test"
+        recipe.save()
+        self.assertEqual(recipe.title, "recipe test")
+        self.assertEqual(recipe.slug, "test-recipe")

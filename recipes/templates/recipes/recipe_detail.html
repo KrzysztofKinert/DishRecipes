@@ -25,6 +25,14 @@
                  aria-labelledby="headingProfileSettings"
                  data-parent="#accordionProfileSettings">
                 <div class="card-body">
+                    <div class="list-group" style="width:20rem">
+                        <a class="list-group-item list-group-item-action list-group-item-primary"
+                           href="{% url 'recipe-update' recipe.slug %}">Edit recipe</a>
+                    </div>
+                    <div class="list-group pt-2" style="width:20rem">
+                        <a class="list-group-item list-group-item-action list-group-item-danger"
+                           href="{% url 'recipe-delete' recipe.slug %}">Delete recipe</a>
+                    </div>
                 </div>
             </div>
         </div>

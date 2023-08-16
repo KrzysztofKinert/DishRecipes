@@ -8,6 +8,9 @@
             <li class="navbar-item">
                 <a class="nav-link" href="{% url 'users' %}">Users</a>
             </li>
+            <li class="navbar-item">
+                <a class="nav-link" href="{% url 'recipe-create' %}">New Recipe</a>
+            </li>
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}

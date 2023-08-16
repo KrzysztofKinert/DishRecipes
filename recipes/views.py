@@ -1,11 +1,12 @@
-from typing import Any, Dict
-from django.http import HttpRequest, HttpResponse
-from django.views.generic import TemplateView, DetailView, ListView
+from typing import Optional
+from django.forms.models import BaseModelForm
+from django.http import HttpResponse
+from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse, reverse_lazy
 
-
-from django.db.models.functions import Lower
-
-from .models import Recipe
+from recipes.models import Recipe
+from recipes.forms import RecipeForm
 
 
 class IndexView(ListView):
@@ -42,3 +43,41 @@ class RecipeList(ListView):
         request.GET = request.GET.copy()
         request.GET["paginate_by"] = str(self.get_paginate_by(self.get_queryset()))
         return super().get(request, *args, **kwargs)
+
+
+class RecipeCreate(LoginRequiredMixin, CreateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = "recipes/recipe_create.html"
+
+    def get_success_url(self) -> str:
+        return reverse("recipe-detail", kwargs={"slug": self.object.slug})
+
+    def form_valid(self, form: BaseModelForm) -> HttpResponse:
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class RecipeUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = "recipes/recipe_update.html"
+
+    def get_success_url(self) -> str:
+        return reverse("recipe-detail", kwargs={"slug": self.object.slug})
+
+    def test_func(self) -> bool | None:
+        recipe = self.get_object()
+        return self.request.user.username == recipe.author.username
+
+
+class RecipeDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Recipe
+    template_name = "recipes/recipe_delete.html"
+
+    def get_success_url(self) -> str:
+        return reverse("recipe-list")
+
+    def test_func(self) -> bool | None:
+        recipe = self.get_object()
+        return self.request.user.username == recipe.author.username
