@@ -7,11 +7,17 @@
              src="{% get_media_prefix %}images/default.jpg"
              alt="temp">
         <div class="media-body w-100" style="height:100% width:100%">
-            <h4 class="px-5">
-                <a href="{% url 'recipe-detail' recipe.slug %}">{{ recipe.title }}</a>
-            </h4>
+            <h3 class="px-5">
+                <a href="{% url 'recipe-detail' recipe.slug %}">{{ recipe.title|title }}</a>
+            </h3>
             <div class="pl-5">
-                <p>Written: {{ recipe.created_date|date:"M d, Y" }}</p>
+                {% if recipe.author.username is None %}
+                    <p>{{ recipe.created_date|date:"M d, Y" }}</p>
+                {% else %}
+                    <p>
+                        <a href="{% url 'user-detail' recipe.author.username %}">{{ recipe.author.username }}</a>, {{ recipe.created_date|date:"M d, Y" }}
+                    </p>
+                {% endif %}
             </div>
         </div>
     </div>

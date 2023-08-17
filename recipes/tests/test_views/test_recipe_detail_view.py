@@ -14,7 +14,7 @@ class RecipeDetailTests(TestCase):
         )
         response = self.client.get(reverse("recipe-detail", kwargs={"slug": recipe.slug}))
         self.assertTemplateUsed(response, "recipes/recipe_detail.html")
-        self.assertContains(response, f'<h1 class="px-5">test</h1>', html=True, status_code=HTTPStatus.OK)
+        self.assertContains(response, f'<h1 class="px-5">Test</h1>', html=True, status_code=HTTPStatus.OK)
 
     def test_recipe_detail_contains_recipe(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
@@ -27,16 +27,38 @@ class RecipeDetailTests(TestCase):
             serving="test serving",
         )
         response = self.client.get(reverse("recipe-detail", kwargs={"slug": recipe.slug}))
-        self.assertContains(response, f"{recipe.title}", html=True, status_code=HTTPStatus.OK)
-        self.assertContains(response, f"Written: {recipe.created_date.strftime('%b %d, %Y')}", html=True)
+        self.assertContains(response, f"{recipe.title.title()}", html=True, status_code=HTTPStatus.OK)
+        self.assertContains(
+            response,
+            f'<p><a href="{reverse("user-detail", kwargs={"slug":recipe.author.username})}">{recipe.author.username}</a>, {recipe.created_date.strftime("%b %d, %Y")}</p>',
+            html=True,
+        )
         self.assertContains(response, f"<p>{recipe.ingredients}</p>", html=True)
         self.assertContains(response, f"<p>{recipe.preparation}</p>", html=True)
         self.assertContains(response, f"<p>{recipe.serving}</p>", html=True)
-        
-    def test_recipe_detail_username_slug_url(self):
-        user = get_user_model().objects.create_user(
-            username="Test-1@.+_-", email="test@test.com", password="Test12345"
+
+    def test_recipe_detail_contains_recipe_with_no_author(self):
+        recipe = Recipe.objects.create(
+            author=None,
+            title="test recipe",
+            excerpt="test",
+            ingredients="test ingredients",
+            preparation="test preparation",
+            serving="test serving",
         )
+        response = self.client.get(reverse("recipe-detail", kwargs={"slug": recipe.slug}))
+        self.assertContains(response, f"{recipe.title.title()}", html=True, status_code=HTTPStatus.OK)
+        self.assertContains(
+            response,
+            f'<p>{recipe.created_date.strftime("%b %d, %Y")}</p>',
+            html=True,
+        )
+        self.assertContains(response, f"<p>{recipe.ingredients}</p>", html=True)
+        self.assertContains(response, f"<p>{recipe.preparation}</p>", html=True)
+        self.assertContains(response, f"<p>{recipe.serving}</p>", html=True)
+
+    def test_recipe_detail_username_slug_url(self):
+        user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         recipe = Recipe.objects.create(
             author=user,
             title="test recipe",

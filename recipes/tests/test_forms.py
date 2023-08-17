@@ -123,7 +123,6 @@ class CustomUserCreationFormTests(TestCase):
             serving="test serving",
         )
         form = RecipeForm(instance=recipe)
-        form = RecipeForm(instance=recipe)
         self.assertTrue(form.instance)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.instance.author, author)

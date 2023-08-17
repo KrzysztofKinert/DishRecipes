@@ -46,10 +46,16 @@
                  src="{% get_media_prefix %}images/default.jpg"
                  alt="temp">
             <div class="media-body">
-                <h1 class="px-5">{{ recipe.title }}</h1>
+                <h1 class="px-5">{{ recipe.title|title }}</h1>
                 <div class="px-5">
                     <hr>
-                    <p>Written: {{ recipe.created_date|date:"M d, Y" }}</p>
+                    {% if recipe.author.username is None %}
+                        <p>{{ recipe.created_date|date:"M d, Y" }}</p>
+                    {% else %}
+                        <p>
+                            <a href="{% url 'user-detail' recipe.author.username %}">{{ recipe.author.username }}</a>, {{ recipe.created_date|date:"M d, Y" }}
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         </div>

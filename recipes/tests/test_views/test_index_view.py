@@ -6,6 +6,7 @@ import datetime
 from django.contrib.auth import get_user_model
 from recipes.models import Recipe
 
+
 class IndexViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -19,7 +20,7 @@ class IndexViewTests(TestCase):
                 preparation="test preparation",
                 serving="test serving",
             )
-            recipe.created_date = recipe.created_date - datetime.timedelta(days=i*2)
+            recipe.created_date = recipe.created_date - datetime.timedelta(days=i * 2)
             recipe.save()
 
     def test_get_index(self):
@@ -32,5 +33,20 @@ class IndexViewTests(TestCase):
         response = self.client.get(reverse("index"))
         newest_recipes = Recipe.objects.all().order_by("-created_date")[:3]
         for i in range(len(newest_recipes)):
-            self.assertContains(response, f'<a href={reverse("recipe-detail", kwargs={"slug": newest_recipes[i].slug})}>{newest_recipes[i].title}</a>', html=True)
-            self.assertContains(response, f"<p>Written: {newest_recipes[i].created_date.strftime('%b %d, %Y')}</p>", html=True)
+            self.assertContains(
+                response,
+                f'<a href={reverse("recipe-detail", kwargs={"slug": newest_recipes[i].slug })}>{newest_recipes[i].title.title()}</a>',
+                html=True,
+            )
+            if newest_recipes[i].author is not None:
+                self.assertContains(
+                    response,
+                    f'<p><a href="{reverse("user-detail", kwargs={"slug":newest_recipes[i].author.username})}">{newest_recipes[i].author.username}</a>, {newest_recipes[i].created_date.strftime("%b %d, %Y")}</p>',
+                    html=True,
+                )
+            else:
+                self.assertContains(
+                    response,
+                    f'<p>{newest_recipes[i].created_date.strftime("%b %d, %Y")}</p>',
+                    html=True,
+                )
