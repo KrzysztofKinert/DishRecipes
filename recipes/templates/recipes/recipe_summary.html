@@ -7,17 +7,35 @@
              src="{% get_media_prefix %}images/default.jpg"
              alt="temp">
         <div class="media-body w-100" style="height:100% width:100%">
-            <h3 class="px-5">
-                <a href="{% url 'recipe-detail' recipe.slug %}">{{ recipe.title|title }}</a>
-            </h3>
-            <div class="pl-5">
-                {% if recipe.author.username is None %}
-                    <p>{{ recipe.created_date|date:"M d, Y" }}</p>
-                {% else %}
-                    <p>
-                        <a href="{% url 'user-detail' recipe.author.username %}">{{ recipe.author.username }}</a>, {{ recipe.created_date|date:"M d, Y" }}
-                    </p>
-                {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-11">
+                        <h3 class="px-5">
+                            <a href="{% url 'recipe-detail' recipe.slug %}">{{ recipe.title|title }}</a>
+                        </h3>
+                        <div class="pl-5">
+                            {% if recipe.author.username is None %}
+                                <p>{{ recipe.created_date|date:"M d, Y" }}</p>
+                            {% else %}
+                                <p>
+                                    <a href="{% url 'user-detail' recipe.author.username %}">{{ recipe.author.username }}</a>, {{ recipe.created_date|date:"M d, Y" }}
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <a class="btn btn-labeled btn-sm btn-info mx-1 my-1"
+                           data-toggle="tooltip"
+                           data-placement="left"
+                           title="Edit recipe"
+                           href="{% url 'recipe-update' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-edit"></i></span></a>
+                        <a class="btn btn-labeled btn-sm btn-danger mx-1"
+                           data-toggle="tooltip"
+                           data-placement="left"
+                           title="Delete recipe"
+                           href="{% url 'recipe-delete' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-trash"></i></span></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
