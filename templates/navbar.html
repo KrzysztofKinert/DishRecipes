@@ -15,7 +15,10 @@
         <ul class="navbar-nav ml-auto">
             {% if user.is_authenticated %}
                 <li class="navbar-item">
-                    <a class="nav-link" href="{% url 'user-detail' user.username %}">Profile</a>
+                    <a class="nav-link" href="{% url 'user-recipes' user.username %}">Your Recipes</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="nav-link" href="{% url 'user-detail' user.username %}">Your Profile</a>
                 </li>
                 <li class="navbar-item">
                     <a class="nav-link" href="{% url 'logout' %}">Logout</a>

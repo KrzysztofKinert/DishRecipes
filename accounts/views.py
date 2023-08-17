@@ -4,12 +4,14 @@ from django.contrib.auth import login, get_user_model, logout
 from django.http import Http404, HttpRequest, HttpResponse
 from django.http.response import HttpResponse
 from django.urls import reverse, reverse_lazy
+from django.views.generic.list import MultipleObjectMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, FormView
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 from .forms import CustomUserCreationForm, UserProfileImageForm, UserDeactivateForm
+from recipes.models import Recipe
 
 
 def redirect_to_users(request):
@@ -125,3 +127,37 @@ class UserDeactivate(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin,
     def test_func(self):
         this_user = self.get_object()
         return self.request.user.username == this_user.username
+
+
+class UserRecipeList(ListView):
+    model = Recipe
+    template_name = "users/user_recipe_list.html"
+    user_context_object_name = "user_data"
+    context_object_name = "recipes"
+    slug_field = "username"
+    paginate_by = 5
+
+
+    def get_paginate_by(self, queryset):
+        return self.request.GET.get("paginate_by", self.paginate_by)
+
+    def get_queryset(self):
+        queryset = self.object.recipes.all().order_by("-created_date")
+        return queryset
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context[self.user_context_object_name] = self.object
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        request.GET = request.GET.copy()
+        request.GET["paginate_by"] = str(self.get_paginate_by(self.get_queryset()))
+        return super().get(request, *args, **kwargs)
+
+    def get_object(self):
+        object = get_object_or_404(get_user_model(), username=self.kwargs.get("slug"))
+        if object.is_superuser is True or object.is_active is False:
+            raise Http404
+        return object
