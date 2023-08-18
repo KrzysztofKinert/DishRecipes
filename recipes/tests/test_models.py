@@ -1,10 +1,13 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
+from django.core.files.uploadedfile import SimpleUploadedFile
+from os import path, remove
 
-from ..models import Recipe
+from recipes.models import Recipe
 
 
 class RecipeTests(TestCase):
@@ -27,6 +30,7 @@ class RecipeTests(TestCase):
         self.assertEqual(recipe.ingredients, "test ingredients")
         self.assertEqual(recipe.preparation, "test preparation")
         self.assertEqual(recipe.serving, "test serving")
+        self.assertEqual(recipe.image.url, settings.MEDIA_URL + "images/default.jpg")
 
     def test_author_set_to_null_on_user_delete(self):
         user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
@@ -71,7 +75,53 @@ class RecipeTests(TestCase):
         user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
         recipe = Recipe.objects.create(author=user, title="test recipe")
         self.assertEqual(recipe.slug, "test-recipe")
-        recipe.title="recipe test"
+        recipe.title = "recipe test"
         recipe.save()
         self.assertEqual(recipe.title, "recipe test")
         self.assertEqual(recipe.slug, "test-recipe")
+
+    def test_default_recipe_image(self):
+        default_image_name = "default.jpg"
+        recipe = Recipe.objects.create(author=None, title="test recipe")
+        self.assertEqual(recipe.image.name, "images/" + default_image_name)
+        self.assertEqual(recipe.image.url, settings.MEDIA_URL + "images/" + default_image_name)
+
+    def test_recipe_image_url_or_default(self):
+        test_image_name = "test.gif"
+        default_image_name = "default.jpg"
+        recipe = Recipe.objects.create(author=None, title="test recipe")
+        self.assertEqual(recipe.recipe_image_url_or_default(), settings.MEDIA_URL + "images/" + default_image_name)
+        recipe.image = SimpleUploadedFile(
+            name=test_image_name,
+            content=(
+                b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+                b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+                b"\x02\x4c\x01\x00\x3b"
+            ),
+            content_type="image/gif",
+        )
+        recipe.save()
+        self.assertEqual(recipe.recipe_image_url_or_default(), settings.MEDIA_URL + "images/" + test_image_name)
+        recipe.image = None
+        recipe.save()
+        with self.assertRaises(ValueError):
+            recipe.image.url
+        self.assertEqual(recipe.recipe_image_url_or_default(), settings.MEDIA_URL + "images/" + default_image_name)
+        remove("uploads/images/" + test_image_name)
+
+    def test_recipe_image_upload(self):
+        test_image_name = "test.gif"
+        test_image_content = (
+            b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+            b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+            b"\x02\x4c\x01\x00\x3b"
+        )
+        recipe = Recipe.objects.create(author=None, title="test recipe")
+        recipe.image = SimpleUploadedFile(
+            name=test_image_name, content=test_image_content, content_type="image/gif"
+        )
+        recipe.save()
+        self.assertEqual(recipe.image.name, "images/" + test_image_name)
+        self.assertEqual(recipe.image.url, "/media/images/" + test_image_name)
+        self.assertTrue(path.isfile("uploads/images/" + test_image_name))
+        remove("uploads/images/" + test_image_name)
