@@ -23,7 +23,7 @@
                 <div class="card-body">
                     <div class="list-group" style="width:20rem">
                         <a class="list-group-item list-group-item-action list-group-item-primary"
-                           href="{% url 'user-profile-image-update' user_data.username %}">Change profile image</a>
+                           href="{% url 'user-profile-update' user_data.username %}">Update profile</a>
                         <a class="list-group-item list-group-item-action list-group-item-primary"
                            href="{% url 'password_change' %}">Change account password</a>
                     </div>
@@ -56,6 +56,8 @@
             </div>
         </div>
         <hr>
-        <div>{% lorem 1 p random %}</div>
+        <div>
+            <p>{{ user_data.profile_bio|linebreaks }}</p>
+        </div>
     </div>
 {% endblock content %}

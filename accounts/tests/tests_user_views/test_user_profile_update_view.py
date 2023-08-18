@@ -4,45 +4,53 @@ from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from os import remove
 
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 
 
-class UserProfileImageUpdateViewTests(TestCase):
-    def test_get_user_profile_image_update_not_authenticated_redirects_to_login_with_next(self):
+class UserProfileUpdateViewTests(TestCase):
+    def test_get_user_profile_update_not_authenticated_redirects_to_login_with_next(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
-        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update/")
+        response = self.client.get(reverse("user-profile-update", kwargs={"slug": user.username}))
         self.assertRedirects(
             response,
-            f"/accounts/login/?next=/accounts/users/{user.username}/profile_image_update/",
+            reverse("login") + "?next=" + reverse("user-profile-update", kwargs={"slug": user.username}),
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
 
-    def test_get_user_profile_image_update_authenticated(self):
+    def test_get_user_profile_update_update_authenticated(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
-        response = self.client.get(f"/accounts/users/{user.username}/profile_image_update/")
+        response = self.client.get(reverse("user-profile-update", kwargs={"slug": user.username}))
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, "users/profile_image_form.html")
+        self.assertTemplateUsed(response, "users/profile_form.html")
         self.assertContains(
             response,
             '<img class="img-fluid my-1" src="/media/images/default.jpg" alt="Current image" height="400" width="800">',
             html=True,
         )
 
-    def test_post_user_profile_image_no_image(self):
+    def test_post_user_profile_update_no_image(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
-        response = self.client.post(f"/accounts/users/{user.username}/profile_image_update/", data={}, follow=True)
+        response = self.client.post(
+            reverse("user-profile-update", kwargs={"slug": user.username}),
+            data={
+                "profile_bio": "Test bio",
+                "profile_image":""
+            }
+        )
         self.assertRedirects(
             response,
-            f"/accounts/users/{user.username}/",
+            reverse("user-detail", kwargs={"slug": user.username}),
             HTTPStatus.FOUND,
             HTTPStatus.OK,
         )
+        user = get_user_model().objects.all()[0]
         self.assertEqual(user.profile_image.name, "images/default.jpg")
+        self.assertEqual(user.profile_bio, "Test bio")
 
-    def test_post_user_profile_image_valid_image(self):
+    def test_post_user_profile_update_valid_data(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
         image = SimpleUploadedFile(
@@ -54,8 +62,8 @@ class UserProfileImageUpdateViewTests(TestCase):
             ),
             content_type="image/gif",
         )
-        data = {"profile_image": image}
-        url = reverse_lazy("user-profile-image-update", kwargs={"slug": user.username})
+        data = {"profile_bio": "Test bio", "profile_image": image}
+        url = reverse_lazy("user-profile-update", kwargs={"slug": user.username})
         response = self.client.post(url, data)
         user = get_user_model().objects.all()[0]
         self.assertRedirects(
@@ -65,13 +73,14 @@ class UserProfileImageUpdateViewTests(TestCase):
             HTTPStatus.OK,
         )
         self.assertEqual(user.profile_image.name, "images/test.gif")
+        self.assertEqual(user.profile_bio, "Test bio")
         remove("uploads/images/test.gif")
 
-    def test_post_user_profile_image_clear_image(self):
+    def test_post_user_profile_update_clear_image(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
         data = {"profile_image-clear": "on"}
-        url = reverse_lazy("user-profile-image-update", kwargs={"slug": user.username})
+        url = reverse_lazy("user-profile-update", kwargs={"slug": user.username})
         response = self.client.post(url, data)
         self.assertRedirects(
             response,
@@ -82,7 +91,7 @@ class UserProfileImageUpdateViewTests(TestCase):
         user = get_user_model().objects.all()[0]
         self.assertFalse(user.profile_image)
 
-    def test_post_user_profile_image_invalid_data(self):
+    def test_post_user_profile_update_invalid_data(self):
         user = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
         self.client.login(username=user.username, password="Test12345")
         file = SimpleUploadedFile(
@@ -91,7 +100,7 @@ class UserProfileImageUpdateViewTests(TestCase):
             content_type="text/plain",
         )
         data = {"profile_image": file}
-        url = reverse_lazy("user-profile-image-update", kwargs={"slug": user.username})
+        url = reverse_lazy("user-profile-update", kwargs={"slug": user.username})
         response = self.client.post(url, data)
         user = get_user_model().objects.all()[0]
         self.assertEqual(user.profile_image.name, "images/default.jpg")

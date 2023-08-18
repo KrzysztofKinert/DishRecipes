@@ -2,8 +2,9 @@ from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+from os import remove
 
-from ..forms import CustomUserCreationForm, UserProfileImageForm
+from accounts.forms import CustomUserCreationForm, UserProfileForm
 
 
 class CustomUserCreationFormTests(TestCase):
@@ -99,12 +100,16 @@ class CustomUserCreationFormTests(TestCase):
         form = CustomUserCreationForm()
         self.assertNotIn("profile_image", form.fields)
 
+    def test_no_profile_bio_field_in_form(self):
+        form = CustomUserCreationForm()
+        self.assertNotIn("profile_bio", form.fields)
 
 class UserProfileImageFormTests(TestCase):
     def test_empty_form(self):
-        form = UserProfileImageForm()
+        form = UserProfileForm()
         self.assertFalse(form.is_valid())
         self.assertIn("profile_image", form.fields)
+        self.assertIn("profile_bio", form.fields)
         self.assertNotIn("username", form.fields)
         self.assertNotIn("email", form.fields)
         self.assertNotIn("password1", form.fields)
@@ -120,15 +125,19 @@ class UserProfileImageFormTests(TestCase):
             "password1": "Test12345",
             "password2": "Test12345",
         }
-        form = UserProfileImageForm(instance=user)
+        form = UserProfileForm(instance=user)
         self.assertFalse(form.is_valid())
         self.assertEqual(form.instance.username, "username")
         self.assertEqual(form.instance.email, "test@test.com")
         self.assertEqual(form.instance.profile_image, "images/default.jpg")
+        self.assertEqual(form.instance.profile_bio, "")
 
     def test_form_from_post(self):
         user = get_user_model().objects.create_user(username="username", email="test@test.com", password="1234")
         request = HttpRequest()
+        request.POST = {
+            "profile_bio": "Test bio"
+        }
         request.FILES = {
             "profile_image": SimpleUploadedFile(
                 name="test.gif",
@@ -140,7 +149,7 @@ class UserProfileImageFormTests(TestCase):
                 content_type="image/gif",
             )
         }
-        form = UserProfileImageForm(files=request.FILES, instance=user)
+        form = UserProfileForm(data=request.POST, files=request.FILES, instance=user)
         self.assertTrue(form.files["profile_image"].name == "test.gif")
         self.assertTrue(form.is_valid())
         request.FILES = {
@@ -152,6 +161,50 @@ class UserProfileImageFormTests(TestCase):
                 content_type="text/plain",
             )
         }
-        form = UserProfileImageForm(files=request.FILES, instance=user)
+        form = UserProfileForm(files=request.FILES, instance=user)
         self.assertTrue(form.files["profile_image"].name == "test.txt")
         self.assertFalse(form.is_valid())
+
+    def test_can_save_valid_form_from_post(self):
+        user = get_user_model().objects.create_user(username="username", email="test@test.com", password="1234")
+        request = HttpRequest()
+        request.POST = {
+            "profile_bio": "Test bio"
+        }
+        request.FILES = {
+            "profile_image": SimpleUploadedFile(
+                name="test.gif",
+                content=(
+                    b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+                    b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+                    b"\x02\x4c\x01\x00\x3b"
+                ),
+                content_type="image/gif",
+            )
+        }
+        form = UserProfileForm(data=request.POST, files=request.FILES, instance=user)
+        form.save()
+        self.assertEqual(get_user_model().objects.count(), 1)
+        user = get_user_model().objects.get(pk=1)
+        self.assertEqual(user.profile_image, "images/test.gif")
+        self.assertEqual(user.profile_bio, "Test bio")
+        remove("uploads/images/test.gif")
+
+
+    def test_cannot_save_invalid_form_from_post(self):
+        request = HttpRequest()
+        request.POST = {
+            "profile_bio": ""
+        }
+        request.FILES = {
+            "profile_image": SimpleUploadedFile(
+                name="test.txt",
+                content=(
+                    b"\x74\x78\x74"
+                ),
+                content_type="text/plain",
+            )
+        }
+        form = CustomUserCreationForm(request.POST)
+        with self.assertRaises(ValueError):
+            form.save()

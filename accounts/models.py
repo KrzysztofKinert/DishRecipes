@@ -1,4 +1,3 @@
-from typing import Any, Iterable, Optional
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -47,6 +46,11 @@ class CustomUser(AbstractUser):
         upload_to="images",
         blank=True,
         default="images/default.jpg",
+    )
+    profile_bio = models.CharField(
+        _("profile bio"),
+        max_length=2000,
+        blank=True,
     )
 
     objects = CustomUserManager()

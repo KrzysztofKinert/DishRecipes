@@ -10,7 +10,7 @@ from django.views.generic import CreateView, DetailView, ListView, UpdateView, F
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .forms import CustomUserCreationForm, UserProfileImageForm, UserDeactivateForm
+from .forms import CustomUserCreationForm, UserProfileForm, UserDeactivateForm
 from recipes.models import Recipe
 
 
@@ -71,10 +71,10 @@ class UserList(ListView):
         return super().get(request, *args, **kwargs)
 
 
-class UserProfileImageUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+class UserProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = get_user_model()
-    form_class = UserProfileImageForm
-    template_name = "users/profile_image_form.html"
+    form_class = UserProfileForm
+    template_name = "users/profile_form.html"
     slug_field = "username"
 
     def get_success_url(self):
@@ -136,7 +136,6 @@ class UserRecipeList(ListView):
     context_object_name = "recipes"
     slug_field = "username"
     paginate_by = 5
-
 
     def get_paginate_by(self, queryset):
         return self.request.GET.get("paginate_by", self.paginate_by)

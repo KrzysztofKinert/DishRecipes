@@ -10,7 +10,7 @@ urlpatterns = [
     path("users/<str:slug>/", views.UserDetail.as_view(), name="user-detail"),
     path("users/<str:slug>/recipes/", views.UserRecipeList.as_view(), name="user-recipes"),
     path("users/<str:slug>/deactivate/", views.UserDeactivate.as_view(), name="user-deactivate"),
-    path("users/<str:slug>/profile_image_update/", views.UserProfileImageUpdate.as_view(), name="user-profile-image-update")
+    path("users/<str:slug>/profile_update/", views.UserProfileUpdate.as_view(), name="user-profile-update")
 ]
 
 # django.contrib.auth.urls
