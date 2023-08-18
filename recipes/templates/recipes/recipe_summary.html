@@ -24,16 +24,18 @@
                         </div>
                     </div>
                     <div class="col-1">
-                        <a class="btn btn-labeled btn-sm btn-info mx-1 my-1"
-                           data-toggle="tooltip"
-                           data-placement="left"
-                           title="Edit recipe"
-                           href="{% url 'recipe-update' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-edit"></i></span></a>
-                        <a class="btn btn-labeled btn-sm btn-danger mx-1"
-                           data-toggle="tooltip"
-                           data-placement="left"
-                           title="Delete recipe"
-                           href="{% url 'recipe-delete' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-trash"></i></span></a>
+                        {% if user.is_authenticated and user.username == recipe.author.username %}
+                            <a class="btn btn-labeled btn-sm btn-info mx-1 my-1"
+                               data-toggle="tooltip"
+                               data-placement="left"
+                               title="Edit recipe"
+                               href="{% url 'recipe-update' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-edit"></i></span></a>
+                            <a class="btn btn-labeled btn-sm btn-danger mx-1"
+                               data-toggle="tooltip"
+                               data-placement="left"
+                               title="Delete recipe"
+                               href="{% url 'recipe-delete' recipe.slug %}"><span class="btn-label"><i class="fa fa-fw fa-trash"></i></span></a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
