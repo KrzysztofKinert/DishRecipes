@@ -9,7 +9,7 @@
 {% endblock stylesheets %}
 
 {% block content %}
-    <div class="container card py-5 px-5 mt-5">
+    <div class="container card py-5 px-5 my-5">
         <form method="post" class="form-signup">
             {% csrf_token %}
             <h3 class="py-2">Are you sure you want to delete recipe {{ recipe }}?</h3>

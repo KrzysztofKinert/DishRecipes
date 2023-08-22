@@ -6,7 +6,7 @@
 
 {% block content %}
     {% if user.is_authenticated and user.username == user_data.username %}
-        <div class="container card py-3 px-3 mt-5 accordion"
+        <div class="container card py-3 px-3 my-5 accordion"
              id="accordionProfileSettings">
             <div id="headingProfileSettings">
                 <button class="btn btn-block btn-outline-info text-left"
@@ -35,10 +35,10 @@
             </div>
         </div>
     {% endif %}
-    <div class="container card py-3 px-3 mt-5">
+    <div class="container card py-3 px-3 my-5">
         <h5><a href="{% url 'user-recipes' user_data.username %}">{{ user_data.username }}'s recipes</a></h5>
     </div>
-    <div class="container card py-3 px-3 mt-5">
+    <div class="container card py-3 px-3 my-5">
         <div class="media" style="height:10rem">
             <img class="img-fluid"
                  style="height:100%"
