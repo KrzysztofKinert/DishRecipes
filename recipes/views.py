@@ -6,6 +6,7 @@ from django.views.generic import DetailView, ListView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse
 from django.views.generic.edit import FormMixin
+from django.db.models import Avg
 
 from recipes.models import Recipe, Review
 from recipes.forms import RecipeForm, ReviewForm
@@ -20,6 +21,10 @@ class IndexView(ListView):
         queryset = Recipe.objects.all().order_by("-created_date")[:3]
         return queryset
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context["popular_recipes"] = Recipe.objects.annotate(avg_rating=Avg("reviews__rating")).order_by("-avg_rating")[:3]
+        return context
 
 class RecipeView(FormMixin, DetailView):
     model = Recipe

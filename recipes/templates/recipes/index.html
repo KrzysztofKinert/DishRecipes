@@ -9,9 +9,18 @@
 {% endblock stylesheets %}
 
 {% block content %}
-<div class="container card py-5 px-5 mt-5">
-    <h1>DishRecipes</h1>
+<div class="display-1 d-flex justify-content-center">
+    <p>DishRecipes</p>
+</div>
+<div class="container card py-5 px-5 my-5">
     <p>{% lorem 1 b random %}</p>
+    <hr>
+    <h3>Popular recipes</h3>
+    <ul class="list-group pr-1 pl-1">
+        {% for recipe in popular_recipes %}
+            <li class="list-group-item my-2">{% include "recipes/recipe_summary.html" %}</li>
+        {% endfor %}
+    </ul>
     <hr>
     <h3>New recipes</h3>
     <ul class="list-group pr-1 pl-1">

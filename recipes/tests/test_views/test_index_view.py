@@ -4,8 +4,9 @@ from django.utils import timezone
 from django.urls import reverse
 import datetime
 from django.contrib.auth import get_user_model
-from recipes.models import Recipe
+from django.db.models import Avg
 
+from recipes.models import Recipe
 
 class IndexViewTests(TestCase):
     @classmethod
@@ -27,7 +28,7 @@ class IndexViewTests(TestCase):
         recipes = list(Recipe.objects.all())
         response = self.client.get(reverse("index"))
         self.assertTemplateUsed(response, "recipes/index.html")
-        self.assertContains(response, "<h1>DishRecipes</h1>", html=True, status_code=HTTPStatus.OK)
+        self.assertContains(response, "<p>DishRecipes</p>", html=True, status_code=HTTPStatus.OK)
 
     def test_index_shows_three_newest_recipes(self):
         response = self.client.get(reverse("index"))
@@ -48,5 +49,27 @@ class IndexViewTests(TestCase):
                 self.assertContains(
                     response,
                     f'<p>{newest_recipes[i].created_date.strftime("%b %d, %Y")}</p>',
+                    html=True,
+                )
+
+    def test_index_shows_three_highest_rated_recipes(self):
+        response = self.client.get(reverse("index"))
+        popular_recipes = Recipe.objects.annotate(avg_rating=Avg("reviews__rating")).order_by("-avg_rating")[:3]
+        for i in range(len(popular_recipes)):
+            self.assertContains(
+                response,
+                f'<a href={reverse("recipe-detail", kwargs={"slug": popular_recipes[i].slug })}>{popular_recipes[i].title.title()}</a>',
+                html=True,
+            )
+            if popular_recipes[i].author is not None:
+                self.assertContains(
+                    response,
+                    f'<p><a href="{reverse("user-detail", kwargs={"slug":popular_recipes[i].author.username})}">{popular_recipes[i].author.username}</a>, {popular_recipes[i].created_date.strftime("%b %d, %Y")}</p>',
+                    html=True,
+                )
+            else:
+                self.assertContains(
+                    response,
+                    f'<p>{popular_recipes[i].created_date.strftime("%b %d, %Y")}</p>',
                     html=True,
                 )
