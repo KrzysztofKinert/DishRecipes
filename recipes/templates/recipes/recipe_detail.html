@@ -1,4 +1,5 @@
 {% extends "base_layout.html" %}
+{% load crispy_forms_tags %}
 {% load static %}
 
 {% block title %}
@@ -6,6 +7,7 @@
 {% endblock title %}
 
 {% block stylesheets %}
+    <link rel="stylesheet" href="{% static 'css/forms.css' %}">
 {% endblock stylesheets %}
 
 {% block content %}
@@ -56,6 +58,7 @@
                             <a href="{% url 'user-detail' recipe.author.username %}">{{ recipe.author.username }}</a>, {{ recipe.created_date|date:"M d, Y" }}
                         </p>
                     {% endif %}
+                    <p>Rating: {{ recipe.get_avg_rating }}/5</p>
                 </div>
             </div>
         </div>
@@ -78,5 +81,41 @@
             <h3 class="pb-3">Serving</h3>
             <p>{{ recipe.serving }}</p>
         </div>
+    </div>
+    {% if user.is_authenticated and user.username != recipe.author.username %}
+        <div class="container card py-3 px-3 mt-5">
+            {% if user_review %}
+                <h4>Your review</h4>
+                <div>
+                    {% with user_review as review %}
+                        {% include "recipes/review.html" %}
+                    {% endwith %}
+                </div>
+                <a class="btn btn-labeled btn-sm btn-danger w-25"
+                   data-toggle="tooltip"
+                   data-placement="top"
+                   title="Delete review"
+                   href="{% url 'review-delete' recipe.slug user_review.id %}">Delete review<i class="fa fa-fw fa-trash"></i></a>
+            {% else %}
+                <h1>Write your review</h1>
+                <form class="form-signin" method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit"
+                            name="create_btn"
+                            id="create_btn"
+                            class="btn btn-primary">Create</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
+    <div class="container card py-3 px-3 my-5">
+        <h4>Reviews</h4>
+        <hr>
+        <ul class="list-group pr-1 pl-1">
+            {% for review in reviews %}
+                <li class="list-group-item my-2">{% include "recipes/review.html" %}</li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock content %}

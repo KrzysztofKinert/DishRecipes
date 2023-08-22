@@ -3,13 +3,13 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Review
 
 
-class RecipeDeleteTests(TestCase):
+class ReviewDeleteTests(TestCase):
     def setUp(self):
         author = get_user_model().objects.create_user(username="Test", email="test@test.com", password="Test12345")
-        Recipe.objects.create(
+        recipe = Recipe.objects.create(
             author=author,
             title="test",
             excerpt="test excerpt",
@@ -17,42 +17,48 @@ class RecipeDeleteTests(TestCase):
             preparation="test preparation",
             serving="test serving",
         )
+        Review.objects.create(
+            author=author,
+            recipe=recipe,
+            rating=3,
+            content="Test"
+        )
 
-    def test_get_recipe_delete_not_authenticated_redirects_to_login_with_next(self):
-        response = self.client.get(reverse("recipe-delete", kwargs={"slug": "test"}))
+    def test_get_review_delete_not_authenticated_redirects_to_login_with_next(self):
+        response = self.client.get(reverse("review-delete", kwargs={"slug": "test", "pk":1}))
         self.assertRedirects(
             response,
-            reverse("login") + f'?next={reverse("recipe-delete", kwargs={"slug":"test"})}',
+            reverse("login") + f'?next={reverse("review-delete", kwargs={"slug": "test", "pk":1})}',
             status_code=HTTPStatus.FOUND,
             target_status_code=HTTPStatus.OK,
         )
 
-    def test_get_recipe_delete_authenticated_as_another_user(self):
+    def test_get_review_delete_authenticated_as_another_user(self):
         author2 = get_user_model().objects.create_user(username="Test2", email="test2@test.com", password="Test12345")
         self.client.login(username=author2.username, password="Test12345")
-        response = self.client.get(reverse("recipe-delete", kwargs={"slug": "test"}))
+        response = self.client.get(reverse("review-delete", kwargs={"slug": "test", "pk":1}))
         self.assertEqual(response.status_code, HTTPStatus.FORBIDDEN)
 
     def test_get_recipe_delete_authenticated(self):
         author = get_user_model().objects.get(pk=1)
-        recipe = Recipe.objects.get(pk=1)
+        review = Review.objects.get(pk=1)
         self.client.login(username=author.username, password="Test12345")
-        response = self.client.get(reverse("recipe-delete", kwargs={"slug": "test"}))
-        self.assertTemplateUsed(response, "recipes/recipe_delete.html")
+        response = self.client.get(reverse("review-delete", kwargs={"slug": "test", "pk":1}))
+        self.assertTemplateUsed(response, "recipes/review_delete.html")
         self.assertContains(
             response,
-            f'<h3 class="py-2">Are you sure you want to delete recipe { recipe }?</h3>',
+            f'<h3 class="py-2">Are you sure you want to delete review { review }?</h3>',
             html=True,
             status_code=HTTPStatus.OK,
         )
 
     def test_post_recipe_delete_not_authenticated_redirects_to_login_with_next(self):
         response = self.client.post(
-            reverse("recipe-delete", kwargs={"slug": "test"}),
+            reverse("review-delete", kwargs={"slug": "test", "pk":1}),
         )
         self.assertRedirects(
             response,
-            reverse("login") + f'?next={reverse("recipe-delete", kwargs={"slug":"test"})}',
+            reverse("login") + f'?next={reverse("review-delete", kwargs={"slug": "test", "pk":1})}',
             status_code=HTTPStatus.FOUND,
             target_status_code=HTTPStatus.OK,
         )
@@ -61,7 +67,7 @@ class RecipeDeleteTests(TestCase):
         author2 = get_user_model().objects.create_user(username="Test2", email="test2@test.com", password="Test12345")
         self.client.login(username=author2.username, password="Test12345")
         response = self.client.post(
-            reverse("recipe-delete", kwargs={"slug": "test"}),
+            reverse("review-delete", kwargs={"slug": "test", "pk":1}),
             data={},
             follow=True,
         )
@@ -71,14 +77,14 @@ class RecipeDeleteTests(TestCase):
         author = get_user_model().objects.get(pk=1)
         self.client.login(username=author.username, password="Test12345")
         response = self.client.post(
-            reverse("recipe-delete", kwargs={"slug": "test"}),
+            reverse("review-delete", kwargs={"slug": "test", "pk":1}),
             data={},
             follow=True,
         )
         self.assertRedirects(
             response,
-            reverse("recipe-list"),
+            reverse("recipe-detail", kwargs={"slug":"test"}),
             status_code=HTTPStatus.FOUND,
             target_status_code=HTTPStatus.OK,
         )
-        self.assertEqual(Recipe.objects.count(), 0)
+        self.assertEqual(Review.objects.count(), 0)

@@ -23,7 +23,7 @@ class UserProfileUpdateViewTests(TestCase):
         self.client.login(username=user.username, password="Test12345")
         response = self.client.get(reverse("user-profile-update", kwargs={"slug": user.username}))
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertTemplateUsed(response, "users/profile_form.html")
+        self.assertTemplateUsed(response, "users/user_profile_form.html")
         self.assertContains(
             response,
             '<img class="img-fluid my-1" src="/media/images/default.jpg" alt="Current image" height="400" width="800">',

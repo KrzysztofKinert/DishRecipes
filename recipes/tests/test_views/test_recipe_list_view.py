@@ -4,8 +4,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db.models import Avg
 
-from recipes.models import Recipe
+
+from recipes.models import Recipe, Review
 
 
 class RecipeListViewTests(TestCase):
@@ -24,6 +26,20 @@ class RecipeListViewTests(TestCase):
                 ingredients="test ingredients",
                 preparation="test preparation",
                 serving="test serving",
+            )
+            if i%3==0:
+                Review.objects.create(
+                author=None,
+                recipe=recipe,
+                rating=1,
+                content="Test 1" + str(i),
+            )
+            if i%2==0:
+                Review.objects.create(
+                author=None,
+                recipe=recipe,
+                rating=5,
+                content="Test " + str(i),
             )
             if i%5==0:
                 recipe.author=None
@@ -146,3 +162,9 @@ class RecipeListViewTests(TestCase):
                     f'<p>{recipe.created_date.strftime("%b %d, %Y")}</p>',
                     html=True,
                 )
+            avg_rating = recipe.get_avg_rating()
+            self.assertContains(
+                response,
+                f'<p>Rating: {avg_rating}/5</p>',
+                html=True,
+            )

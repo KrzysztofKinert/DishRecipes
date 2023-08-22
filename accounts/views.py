@@ -74,7 +74,7 @@ class UserList(ListView):
 class UserProfileUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = get_user_model()
     form_class = UserProfileForm
-    template_name = "users/profile_form.html"
+    template_name = "users/user_profile_form.html"
     slug_field = "username"
 
     def get_success_url(self):

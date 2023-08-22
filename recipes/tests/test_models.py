@@ -6,8 +6,10 @@ from django.utils.text import slugify
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from os import path, remove
+from django.core.exceptions import ObjectDoesNotExist
+from django.db import IntegrityError
 
-from recipes.models import Recipe
+from recipes.models import Recipe, Review
 
 
 class RecipeTests(TestCase):
@@ -117,11 +119,108 @@ class RecipeTests(TestCase):
             b"\x02\x4c\x01\x00\x3b"
         )
         recipe = Recipe.objects.create(author=None, title="test recipe")
-        recipe.image = SimpleUploadedFile(
-            name=test_image_name, content=test_image_content, content_type="image/gif"
-        )
+        recipe.image = SimpleUploadedFile(name=test_image_name, content=test_image_content, content_type="image/gif")
         recipe.save()
         self.assertEqual(recipe.image.name, "images/" + test_image_name)
         self.assertEqual(recipe.image.url, "/media/images/" + test_image_name)
         self.assertTrue(path.isfile("uploads/images/" + test_image_name))
         remove("uploads/images/" + test_image_name)
+
+    def test_get_avg_rating(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        user2 = get_user_model().objects.create_user(username="test2", email="test2@test.com", password="1234")
+        user3 = get_user_model().objects.create_user(username="test3", email="test3@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        self.assertEqual(recipe.get_avg_rating(), "-")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        review2 = Review.objects.create(author=user2, recipe=recipe, rating=3, content="test")
+        review3 = Review.objects.create(author=user3, recipe=recipe, rating=3, content="test")
+        self.assertEqual(recipe.get_avg_rating(), (review.rating + review2.rating + review3.rating)/3)
+
+    def test_get_user_review(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        self.assertEqual(recipe.get_user_review(user), review)
+
+class ReviewTests(TestCase):
+    def test_create_review(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(
+            author=user,
+            title="test recipe",
+            excerpt="test",
+            ingredients="test ingredients",
+            preparation="test preparation",
+            serving="test serving",
+        )
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        self.assertIsInstance(review, Review)
+        self.assertIsInstance(review.author, get_user_model())
+        self.assertIsInstance(review.recipe, Recipe)
+        self.assertEqual(review.author.username, "test")
+        self.assertEqual(review.recipe.title, "test recipe")
+        self.assertEqual(review.rating, 3)
+        self.assertEqual(review.content, "test")
+        
+    def test_author_set_to_null_on_user_delete(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        user.delete()
+        review.refresh_from_db()
+        self.assertIsInstance(review, Review)
+        self.assertEqual(review.author, None)
+
+    def test_review_deleted_on_recipe_delete(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        recipe.delete()
+        with self.assertRaises(ObjectDoesNotExist):
+            review.refresh_from_db()
+
+    def test_author_reviews_returns_all_author_reviews(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        recipe2 = Recipe.objects.create(author=user, title="test recipe2", excerpt="test")
+        review2 = Review.objects.create(author=user, recipe=recipe2, rating=3, content="test")
+        recipe3 = Recipe.objects.create(author=user, title="test recipe3", excerpt="test")
+        review3 = Review.objects.create(author=user, recipe=recipe3, rating=3, content="test")
+        reviews = user.recipes.all()
+        self.assertEqual(reviews.count(), 3)
+        self.assertEqual(reviews[0].author, review.author)
+        self.assertEqual(reviews[1].author, review2.author)
+        self.assertEqual(reviews[2].author, review3.author)
+
+    def test_recipe_reviews_returns_all_recipe_reviews(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        user2 = get_user_model().objects.create_user(username="test2", email="test2@test.com", password="1234")
+        user3 = get_user_model().objects.create_user(username="test3", email="test3@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        review2 = Review.objects.create(author=user2, recipe=recipe, rating=3, content="test")
+        review3 = Review.objects.create(author=user3, recipe=recipe, rating=3, content="test")
+        reviews = recipe.reviews.all()
+        self.assertEqual(reviews.count(), 3)
+        self.assertEqual(reviews[0].recipe, review.recipe)
+        self.assertEqual(reviews[1].recipe, review2.recipe)
+        self.assertEqual(reviews[2].recipe, review3.recipe)
+
+    def test_review_str(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        review = Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        date = timezone.now()
+        self.assertEqual(review.__str__(), f'"test recipe" - 3/5, test [{date.strftime("%b %d, %Y")}]')
+        user.delete()
+        review.refresh_from_db()
+        self.assertEqual(review.__str__(), f'"test recipe" - 3/5, --- [{date.strftime("%b %d, %Y")}]')
+    
+    def test_review_unique_author_recipe(self):
+        user = get_user_model().objects.create_user(username="test", email="test@test.com", password="1234")
+        recipe = Recipe.objects.create(author=user, title="test recipe", excerpt="test")
+        Review.objects.create(author=user, recipe=recipe, rating=3, content="test")
+        with self.assertRaises(IntegrityError):
+            Review.objects.create(author=user, recipe=recipe, rating=3, content="test")

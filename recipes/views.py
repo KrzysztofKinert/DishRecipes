@@ -1,12 +1,14 @@
-from typing import Optional
+from typing import Any, Dict, Optional
+from django.db import models
 from django.forms.models import BaseModelForm
-from django.http import HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseForbidden
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+from django.views.generic.edit import FormMixin
 
-from recipes.models import Recipe
-from recipes.forms import RecipeForm
+from recipes.models import Recipe, Review
+from recipes.forms import RecipeForm, ReviewForm
 
 
 class IndexView(ListView):
@@ -19,11 +21,40 @@ class IndexView(ListView):
         return queryset
 
 
-class RecipeView(DetailView):
+class RecipeView(FormMixin, DetailView):
     model = Recipe
     template_name = "recipes/recipe_detail.html"
     context_object_name = "recipe"
     slug_field = "slug"
+    form_class = ReviewForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            context["user_review"] = self.object.get_user_review(self.request.user)
+        context["reviews"] = self.object.reviews.all().order_by("-created_date")[:10]
+        return context
+
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseForbidden()
+        self.object = self.get_object()
+        if request.user == self.object.author:
+            return HttpResponseForbidden()
+        form = self.get_form()
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.recipe = self.object
+            review.author = request.user
+            review.save()
+            return self.render_to_response(self.get_context_data(object=self.object))
+        else:
+            return self.form_invalid(form)
 
 
 class RecipeList(ListView):
@@ -81,3 +112,14 @@ class RecipeDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self) -> bool | None:
         recipe = self.get_object()
         return self.request.user.username == recipe.author.username
+
+class ReviewDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Review
+    template_name = "recipes/review_delete.html"
+
+    def get_success_url(self) -> str:
+        return reverse("recipe-detail", kwargs={"slug": self.kwargs.get("slug")})
+    
+    def test_func(self) -> bool | None:
+        review = self.get_object()
+        return self.request.user.username == review.author.username

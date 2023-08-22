@@ -44,5 +44,8 @@
     <div class="px-3">
         <hr>
     </div>
-    <div class="px-3 pb-3">{{ recipe.excerpt }}</div>
+    <div class="px-3 pb-3">
+        <p>Rating: {{ recipe.get_avg_rating }}/5</p>
+        {{ recipe.excerpt|linebreaks }}
+    </div>
 </div>

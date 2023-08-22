@@ -1,0 +1,12 @@
+{% load static %}
+<div class="flex-container">
+    {% if review.author.username is None %}
+        <p>{{ review.created_date|date:"M d, Y" }}</p>
+    {% else %}
+        <p>
+            <a href="{% url 'user-detail' review.author.username %}">{{ review.author.username }}</a>, {{ review.created_date|date:"M d, Y" }}
+        </p>
+    {% endif %}
+    <p>Rating: {{ review.rating }}/5</p>
+    <div class="px-3 pb-3">{{ review.content }}</div>
+</div>

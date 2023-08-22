@@ -1,7 +1,7 @@
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, NumberInput
 
 from custom.widgets import widgets
-from recipes.models import Recipe
+from recipes.models import Recipe, Review
 
 
 class RecipeForm(ModelForm):
@@ -15,4 +15,19 @@ class RecipeForm(ModelForm):
             "ingredients": Textarea(),
             "preparation": Textarea(),
             "serving": Textarea(),
+        }
+
+
+class ReviewForm(ModelForm):
+    class Meta:
+        model = Review
+        fields = ("rating", "content")
+        widgets = {
+            "rating": NumberInput(
+                attrs={
+                    "min": "1",
+                    "max": "5",
+                }
+            ),
+            "content": Textarea(),
         }
