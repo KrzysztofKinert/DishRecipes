@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "crispy_forms",
     "crispy_bootstrap4",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -83,8 +84,12 @@ WSGI_APPLICATION = "DishRecipes.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
+        "NAME": config("DB_NAME", default=BASE_DIR / "db.sqlite3"),
+        "USER": config("DB_USER", default=""),
+        "PASSWORD": config("DB_PASSWORD", default=""),
+        "HOST": config("DB_HOST", default=""),
+        "PORT": config("DB_PORT", cast=int, default="0"),
     }
 }
 
@@ -136,12 +141,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = "static/"
 STATICFILES_DIRS = [path.join(BASE_DIR, "static/")]
 STATIC_ROOT = path.join(BASE_DIR, "staticfiles")
+MEDIA_ROOT = BASE_DIR / "uploads/"
 
-MEDIA_URL = "media/"
-MEDIA_ROOT = path.join(BASE_DIR, "uploads/")
+STATIC_URL = config("STATIC_URL", default="static/")
+MEDIA_URL = config("MEDIA_URL", default="media/")
+
+STORAGES = {
+    "default": {"BACKEND": config("FILE_STORAGE")},
+    "staticfiles": {"BACKEND": config("STATICFILE_STORAGE")},
+}
+
+AZURE_STORAGE_KEY = config("AZURE_STORAGE_KEY", default="")
+AZURE_ACCOUNT_NAME = config("AZURE_ACCOUNT_NAME", default="")
+AZURE_MEDIA_CONTAINER = config("AZURE_MEDIA_CONTAINER", default="media")
+AZURE_STATIC_CONTAINER = config("AZURE_STATIC_CONTAINER", default="static")
+AZURE_CUSTOM_DOMAIN = config("AZURE_CUSTOM_DOMAIN", default="")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -158,3 +174,11 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
+# Deployment
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ["https://" + config("ALLOWED_HOSTS", cast=Csv(), default="localhost")[0]]
+SECURE_HSTS_INCLUDE_SUBDOMAINS = config("SECURE_HSTS_INCLUDE_SUBDOMAINS", cast=bool)
+SECURE_HSTS_PRELOAD = config("SECURE_HSTS_PRELOAD", cast=bool)
+SECURE_HSTS_SECONDS = config("SECURE_HSTS_SECONDS")

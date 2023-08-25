@@ -4,6 +4,7 @@ staticfiles
 uploads
 .djlintrc
 .coveragerc
+.deployment
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
